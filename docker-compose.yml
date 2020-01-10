@@ -29,9 +29,7 @@ services:
       args:
         SSH_PSWD: ${SSH_PSWD}
     depends_on:
-      - elasticsearch
       - mysql
-      - rabbitmq
       - redis
     restart: ${RESTART}
     networks:
