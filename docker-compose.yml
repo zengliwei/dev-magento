@@ -34,7 +34,7 @@ services:
       - network
 
   rabbitmq:
-    image: magento-2.2-dev-rabbitmq
+    image: magento-dev-rabbitmq
     container_name: ${COMPOSE_PROJECT_NAME}_rabbitmq
     build:
       context: ./rabbitmq
@@ -50,7 +50,7 @@ services:
       - network
 
   varnish:
-    image: magento-2.2-dev-varnish
+    image: magento-dev-varnish
     container_name: ${COMPOSE_PROJECT_NAME}_varnish
     build:
       context: ./varnish
