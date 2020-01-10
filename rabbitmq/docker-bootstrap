@@ -1,0 +1,13 @@
+#!/bin/sh
+
+(
+  count=0
+  until timeout 5 rabbitmqctl list_users >/dev/null 2>/dev/null || ((count++ >= 60)); do sleep 1; done
+  if ! rabbitmqctl list_users | grep ${USERNAME} >/dev/null; then
+    rabbitmqctl add_user ${USERNAME} ${PASSWORD}
+    rabbitmqctl set_user_tags ${USERNAME} administrator
+    rabbitmqctl set_permissions -p / ${USERNAME} ".*" ".*" ".*"
+  fi
+) &
+
+/opt/rabbitmq/sbin/rabbitmq-server
