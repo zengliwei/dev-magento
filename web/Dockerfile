@@ -5,6 +5,7 @@ FROM php:7.0-fpm
 #
 RUN apt-get update \
     && apt-get -y install \
+        libmcrypt-dev \
         libfreetype6-dev libjpeg62-turbo-dev libpng-dev \
         libicu-dev \
         libxslt-dev \
@@ -53,7 +54,8 @@ COPY linux/.profile /var/www/
 #
 RUN mv /var/www/html /var/www/current \
     && rm -rf /var/www/current/* \
-    && chmod 0775 /var/www/current
+    && chmod 0775 /var/www/current \
+    && chown -R www-data:www-data /var/www
 COPY --chown=www-data:www-data nginx/nginx.conf.sample /var/www/current/
 
 #
