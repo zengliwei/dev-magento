@@ -9,7 +9,7 @@ RUN apt-get update \
         libicu-dev \
         libxslt-dev \
         libzip-dev \
-    && docker-php-ext-install -j$(nproc) bcmath intl opcache pdo_mysql soap xml xsl zip \
+    && docker-php-ext-install -j$(nproc) bcmath intl mcrypt opcache pdo_mysql soap xml xsl zip \
     && docker-php-ext-configure gd --with-freetype-dir --with-jpeg-dir \
     && docker-php-ext-install -j$(nproc) gd \
     && pecl install xdebug \
