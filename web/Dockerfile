@@ -10,10 +10,10 @@ RUN apt-get update \
         libicu-dev \
         libxslt-dev \
         libzip-dev \
-    && docker-php-ext-install -j$(nproc) bcmath intl mcrypt opcache pdo_mysql soap xml xsl zip \
+    && docker-php-ext-install -j$(nproc) bcmath iconv intl mbstring mcrypt opcache pdo_mysql soap xml xsl zip \
     && docker-php-ext-configure gd --with-freetype-dir --with-jpeg-dir \
     && docker-php-ext-install -j$(nproc) gd \
-    && pecl install xdebug \
+    && pecl install xdebug-2.9.0 \
     && docker-php-ext-enable xdebug
 COPY php/php.ini "$PHP_INI_DIR/"
 
