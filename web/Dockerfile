@@ -13,7 +13,7 @@ RUN apt-get update \
     && docker-php-ext-install -j$(nproc) bcmath iconv intl mbstring mcrypt opcache pdo_mysql soap xml xsl zip \
     && docker-php-ext-configure gd --with-freetype-dir --with-jpeg-dir \
     && docker-php-ext-install -j$(nproc) gd \
-    && pecl install xdebug-2.9.0 \
+    && pecl install xdebug-2.5.0 \
     && docker-php-ext-enable xdebug
 COPY php/php.ini "$PHP_INI_DIR/"
 
