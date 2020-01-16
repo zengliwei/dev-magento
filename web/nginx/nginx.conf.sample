@@ -1,54 +1,22 @@
-## Example configuration:
-# upstream fastcgi_backend {
-#    # use tcp connection
-#    # server  127.0.0.1:9000;
-#    # or socket
-#    server   unix:/var/run/php/php7.0-fpm.sock;
-# }
-# server {
-#    listen 80;
-#    server_name mage.dev;
-#    set $MAGE_ROOT /var/www/magento2;
-#    include /vagrant/magento2/nginx.conf.sample;
-# }
-#
-## Optional override of deployment mode. We recommend you use the
-## command 'bin/magento deploy:mode:set' to switch modes instead.
-##
-## set $MAGE_MODE default; # or production or developer
-##
-## If you set MAGE_MODE in server config, you must pass the variable into the
-## PHP entry point blocks, which are indicated below. You can pass
-## it in using:
-##
-## fastcgi_param  MAGE_MODE $MAGE_MODE;
-##
-## In production mode, you should uncomment the 'expires' directive in the /static/ location block
-
 root $MAGE_ROOT;
 
-index index.php;
+index index.php index.html;
 autoindex off;
 charset UTF-8;
 error_page 404 403 = /errors/404.php;
-#add_header "X-UA-Compatible" "IE=Edge";
-
-# Deny access to sensitive files
-location /.user.ini {
-    deny all;
-}
 
 location / {
     try_files $uri $uri/ /index.php$is_args$args;
 }
 
-location /media/ {
-    try_files $uri $uri/ /get.php$is_args$args;
-
-    location ~ ^/media/theme_customization/.*\.xml {
+location /errors/ {
+    location ~* \.xml$ {
         deny all;
     }
+}
 
+location /media/ {
+    try_files $uri $uri/ /get.php$is_args$args;
     location ~* \.(ico|jpg|jpeg|png|gif|svg|js|css|swf|eot|ttf|otf|woff|woff2)$ {
         add_header Cache-Control "public";
         add_header X-Frame-Options "SAMEORIGIN";
@@ -61,7 +29,6 @@ location /media/ {
         expires    off;
         try_files $uri $uri/ /get.php$is_args$args;
     }
-    add_header X-Frame-Options "SAMEORIGIN";
 }
 
 location /media/customer/ {
@@ -75,50 +42,25 @@ location /media/downloadable/ {
 location /media/import/ {
     deny all;
 }
-location /errors/ {
-    location ~* \.xml$ {
-        deny all;
-    }
-}
 
-# PHP entry point for main application
-location ~ ^/(index|get|static|errors/report|errors/404|errors/503|health_check)\.php$ {
-    try_files $uri =404;
-    fastcgi_pass   fastcgi_backend;
-    fastcgi_buffers 1024 4k;
-
-    fastcgi_param  PHP_FLAG  "session.auto_start=off \n suhosin.session.cryptua=off";
-    fastcgi_param  PHP_VALUE "memory_limit=756M \n max_execution_time=18000";
-    fastcgi_read_timeout 600s;
+location ~ \.php$ {
+    include /etc/nginx/snippets/fastcgi-php.conf;
+    fastcgi_buffers         1024 4k;
     fastcgi_connect_timeout 600s;
-
-    fastcgi_index  index.php;
-    fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
-    include        fastcgi_params;
+    fastcgi_read_timeout    600s;
+    fastcgi_param           PHP_FLAG  "session.auto_start=off\nsuhosin.session.cryptua=off";
+    fastcgi_param           PHP_VALUE "memory_limit=2G\nmax_execution_time=1800\nmax_input_vars=6000";
+    fastcgi_pass            127.0.0.1:9000;
 }
 
+##
+# Gzip Settings
+##
 gzip on;
 gzip_disable "msie6";
-
-gzip_comp_level 6;
-gzip_min_length 1100;
-gzip_buffers 16 8k;
-gzip_proxied any;
-gzip_types
-    text/plain
-    text/css
-    text/js
-    text/xml
-    text/javascript
-    application/javascript
-    application/x-javascript
-    application/json
-    application/xml
-    application/xml+rss
-    image/svg+xml;
 gzip_vary on;
-
-# Banned locations (only reached if the earlier PHP entry point regexes don't match)
-location ~* (\.php$|\.phtml$|\.htaccess$|\.git) {
-    deny all;
-}
+gzip_proxied any;
+gzip_comp_level 6;
+gzip_buffers 16 8k;
+gzip_http_version 1.1;
+gzip_types text/plain text/css text/javascript application/json application/javascript text/xml application/xml application/xml+rss;
