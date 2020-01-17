@@ -9,15 +9,14 @@ services:
     networks:
       - network
 
-  kibana:
-    image: kibana:6.8.6
-    container_name: ${COMPOSE_PROJECT_NAME}_kibana
+  elastichq:
+    image: elastichq/elasticsearch-hq
+    container_name: ${COMPOSE_PROJECT_NAME}_elastichq
     depends_on:
       - elasticsearch
     restart: ${RESTART}
     environment:
-      SERVER_NAME: ${COMPOSE_PROJECT_NAME}_kibana
-      ELASTICSEARCH_URL: "http://${COMPOSE_PROJECT_NAME}_elasticsearch:9200"
+      HQ_DEFAULT_URL: "http://${COMPOSE_PROJECT_NAME}_elasticsearch:9200"
     networks:
       - network
 
