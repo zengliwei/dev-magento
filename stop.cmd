@@ -6,7 +6,6 @@ cd /d %~dp0
 ::::
 :: Collect domain
 ::
-set projectName=%dirName%
 for /f "tokens=1,2 delims==" %%i in ( .env ) do (
   if %%i == DOMAIN (
     set domain=%%j
