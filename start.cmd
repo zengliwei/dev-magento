@@ -12,6 +12,10 @@ for /f "tokens=1,2 delims==" %%i in ( .env ) do (
     set projectName=%%j
   ) else if %%i == DOMAIN (
     set domain=%%j
+  ) else if %%i == DB_USER (
+    set dbUser=%%j
+  ) else if %%i == DB_PSWD (
+    set dbPass=%%j
   )
 )
 
@@ -46,12 +50,13 @@ set hostMappingSet=0
 for /f "tokens=1,2" %%i in ( %SystemRoot%\System32\drivers\etc\hosts ) do (
   if %%j == %domain% set hostMappingSet=1
 )
-if %hostMappingSet% == 1 exit
-echo. >> %SystemRoot%\System32\drivers\etc\hosts
-echo. >> %SystemRoot%\System32\drivers\etc\hosts
-echo 127.0.0.1 %domain% >> %SystemRoot%\System32\drivers\etc\hosts
-echo 127.0.0.1 elastic.%domain% >> %SystemRoot%\System32\drivers\etc\hosts
-echo 127.0.0.1 rabbitmq.%domain% >> %SystemRoot%\System32\drivers\etc\hosts
+if %hostMappingSet% == 0 (
+  echo. >> %SystemRoot%\System32\drivers\etc\hosts
+  echo. >> %SystemRoot%\System32\drivers\etc\hosts
+  echo 127.0.0.1 %domain% >> %SystemRoot%\System32\drivers\etc\hosts
+  echo 127.0.0.1 elastic.%domain% >> %SystemRoot%\System32\drivers\etc\hosts
+  echo 127.0.0.1 rabbitmq.%domain% >> %SystemRoot%\System32\drivers\etc\hosts
+)
 
 ::::
 :: Create proxy config file
@@ -68,5 +73,17 @@ move proxy.conf.tmp ..\..\config\router\%domain%
 :: Create containers
 ::
 docker-compose up --no-recreate -d
+
+::::
+:: Modify config file of phpMyAdmin
+::
+echo. >> ..\..\config\phpmyadmin\config.user.inc.php
+echo. >> ..\..\config\phpmyadmin\config.user.inc.php
+echo $cfg['Servers'][] = [ >> ..\..\config\phpmyadmin\config.user.inc.php
+echo     'auth_type' =^> 'config', >> ..\..\config\phpmyadmin\config.user.inc.php
+echo     'host'      =^> '%projectName%_mysql', >> ..\..\config\phpmyadmin\config.user.inc.php
+echo     'user'      =^> '%dbUser%', >> ..\..\config\phpmyadmin\config.user.inc.php
+echo     'password'  =^> '%dbPass%' >> ..\..\config\phpmyadmin\config.user.inc.php
+echo ]; >> ..\..\config\phpmyadmin\config.user.inc.php
 
 goto START_PROJECT
