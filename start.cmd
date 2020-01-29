@@ -21,7 +21,7 @@ for /f "tokens=1,2 delims==" %%i in ( .env ) do (
 for /f "skip=1" %%c in ( 'docker ps -a --filter "name=%projectName%_web"' ) do (
   if not %%c == '' goto START_PROJECT
 )
-goto CREATE_CONTAINERS
+goto BUILD_PROJECT
 
 
 ::::
@@ -35,9 +35,27 @@ exit
 
 
 ::::
-:: Create containers
+:: Build project
 ::
-:CREATE_CONTAINERS
+:BUILD_PROJECT
+
+::::
+:: Add host mapping
+::
+set hostMappingSet=0
+for /f "tokens=1,2" %%i in ( %SystemRoot%\System32\drivers\etc\hosts ) do (
+  if %%j == %domain% set hostMappingSet=1
+)
+if %hostMappingSet% == 1 exit
+echo. >> %SystemRoot%\System32\drivers\etc\hosts
+echo. >> %SystemRoot%\System32\drivers\etc\hosts
+echo 127.0.0.1 %domain% >> %SystemRoot%\System32\drivers\etc\hosts
+echo 127.0.0.1 elastic.%domain% >> %SystemRoot%\System32\drivers\etc\hosts
+echo 127.0.0.1 rabbitmq.%domain% >> %SystemRoot%\System32\drivers\etc\hosts
+
+::::
+:: Create proxy config file
+::
 for /f "delims=" %%l in ( proxy.conf ) do (
   set var=%%l
   set var=!var:magento_project_name=%projectName%!
@@ -45,5 +63,10 @@ for /f "delims=" %%l in ( proxy.conf ) do (
   echo !var! >> proxy.conf.tmp
 )
 move proxy.conf.tmp ..\..\config\router\%domain%
+
+::::
+:: Create containers
+::
 docker-compose up --no-recreate -d
+
 goto START_PROJECT
