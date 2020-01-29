@@ -1,8 +1,18 @@
 @echo off
+setLocal enableDelayedExpansion
+
+cd /d %~dp0
+
+::::
+:: Collect domain
+::
+set projectName=%dirName%
+for /f "tokens=1,2 delims==" %%i in ( .env ) do (
+  if %%i == DOMAIN (
+    set domain=%%j
+  )
+)
+rename ..\..\config\router\%domain%.conf %domain%
 
 docker-compose stop
-
-set /p domain=<domain
-rename "..\..\config\router\%domain%.conf" "%domain%"
-
 docker exec dev_router /usr/sbin/service nginx reload
