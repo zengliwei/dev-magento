@@ -4,19 +4,6 @@ setLocal enableDelayedExpansion
 cd /d %~dp0
 
 ::::
-:: Get project folder name and goto the project directory
-::
-set projectDir=%cd%
-cd ..
-set parentDir=%cd%
-for /f %%f in ( 'dir /b %parentDir%' ) do (
-  if %parentDir%\%%f == %projectDir% (
-    set dirName=%%f
-  )
-)
-cd %dirName%
-
-::::
 :: Collect project name and domain
 ::
 set projectName=%dirName%
@@ -31,7 +18,7 @@ for /f "tokens=1,2 delims==" %%i in ( .env ) do (
 ::::
 :: Start project containers if created, otherwise create them
 ::
-for /f "skip=1" %%c in ( 'docker ps -a --filter "name=%dirName%_web"' ) do (
+for /f "skip=1" %%c in ( 'docker ps -a --filter "name=%projectName%_web"' ) do (
   if not %%c == '' goto START_PROJECT
 )
 goto CREATE_CONTAINERS
