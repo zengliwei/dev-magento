@@ -145,7 +145,6 @@ goto :EOF
       docker exec %projectName%_web tar -zxvf /var/www/current/!file! -C /var/www/current
     )
   )
-  pause
 
   call :START_PROJECT
 
