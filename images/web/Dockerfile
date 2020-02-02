@@ -15,7 +15,6 @@ RUN apt-get update \
     && docker-php-ext-install -j$(nproc) gd \
     && pecl install xdebug-2.9.0 \
     && docker-php-ext-enable xdebug
-COPY php/php.ini "$PHP_INI_DIR/"
 
 #
 # Install MSMTP for sending email
@@ -29,8 +28,6 @@ COPY linux/msmtprc /etc/
 #
 RUN apt-get update \
     && apt-get -y install nginx
-COPY nginx/sites-enabled/*.conf /etc/nginx/sites-enabled/
-COPY nginx/*.conf /etc/nginx/
 
 #
 # Install SSH
