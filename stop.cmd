@@ -1,5 +1,4 @@
 @echo off
-setLocal enableDelayedExpansion
 
 cd /d %~dp0
 
