@@ -32,12 +32,15 @@ services:
       MYSQL_PASSWORD: ${DB_PSWD}
     networks:
       - network
+    volumes:
+      - ./config/mysql:/etc/mysql/
+      - ./db:/docker-entrypoint-initdb.d/
 
   rabbitmq:
     image: magento-dev-rabbitmq
     container_name: ${COMPOSE_PROJECT_NAME}_rabbitmq
     build:
-      context: ./rabbitmq
+      context: ./images/rabbitmq
     restart: ${RESTART}
     networks:
       - network
@@ -50,23 +53,21 @@ services:
       - network
 
   varnish:
-    image: magento-dev-varnish
+    image: varnish
     container_name: ${COMPOSE_PROJECT_NAME}_varnish
-    build:
-      context: ./varnish
     depends_on:
       - web
     restart: ${RESTART}
-    environment:
-      BACKEND_HOST: ${COMPOSE_PROJECT_NAME}_web
     networks:
       - network
+    volumes:
+      - ./config/varnish:/etc/varnish/
 
   web:
     image: magento-2.2-dev-web
     container_name: ${COMPOSE_PROJECT_NAME}_web
     build:
-      context: ./web
+      context: ./images/web
       args:
         SSH_PSWD: ${SSH_PSWD}
     depends_on:
@@ -77,6 +78,9 @@ services:
     restart: ${RESTART}
     networks:
       - network
+    volumes:
+      - ./config/nginx:/etc/nginx/
+      - ./config/php:/usr/local/etc/php/
 
 networks:
 
