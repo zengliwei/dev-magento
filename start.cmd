@@ -109,8 +109,8 @@ goto :EOF
   :: Modify config file of phpMyAdmin
   ::
   set phpMyAdminSet=0
-  for /f "delims=" %%i in ( 'findstr /c:"%projectName%_mysql" ..\..\config\phpmyadmin\config.user.inc.php' ) do (
-    if %%j == %domain% set phpMyAdminSet=1
+  for /f "tokens=1,2 delims==> " %%i in ( 'findstr /c:"%projectName%_mysql" ..\..\config\phpmyadmin\config.user.inc.php' ) do (
+    if "%%j" == "'%projectName%_mysql'," set phpMyAdminSet=1
   )
   if %phpMyAdminSet% == 0 (
     echo.>> ..\..\config\phpmyadmin\config.user.inc.php
