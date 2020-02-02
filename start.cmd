@@ -78,7 +78,7 @@ goto :EOF
       set line=!line:magento_project_domain=%domain%!
       echo !line!>> proxy.conf.tmp
     )
-    endlocal
+    endLocal
   )
   move proxy.conf.tmp ..\..\config\router\%domain%
 
@@ -96,7 +96,7 @@ goto :EOF
       )
       echo !line!>> default.vcl.tmp
     )
-    endlocal
+    endLocal
   )
   move default.vcl.tmp ./config/varnish/default.vcl
 
