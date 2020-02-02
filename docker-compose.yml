@@ -14,7 +14,7 @@ services:
     networks:
       - network
     volumes:
-      - ./config/mysql:/etc/mysql/
+      - ./config/mysql/mysql.cnf:/etc/mysql/mysql.cnf
       - ./db:/docker-entrypoint-initdb.d/
 
   redis:
@@ -38,8 +38,9 @@ services:
     networks:
       - network
     volumes:
-      - ./config/nginx:/etc/nginx/
-      - ./config/php:/usr/local/etc/php/
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./config/nginx/sites-enabled/magento.conf:/etc/nginx/sites-enabled/magento.conf
+      - ./config/php/php.ini:/usr/local/etc/php/php.ini
 
 networks:
 
