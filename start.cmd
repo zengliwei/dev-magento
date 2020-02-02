@@ -126,7 +126,8 @@ goto :EOF
   :: Import data
   ::
   for /f %%f in ( 'dir /b src' ) do (
-    set file=%%f
+    set "file=%%f"
+    setLocal enableDelayedExpansion
     if !file:~-4! == .tar (
       call :COPY_FILE_TO_CONTAINER ".\src" !file! %projectName%_web "/var/www/current"
       docker exec %projectName%_web tar -xvf /var/www/current/!file! -C /var/www/current
@@ -135,6 +136,7 @@ goto :EOF
       call :COPY_FILE_TO_CONTAINER ".\src" !file! %projectName%_web "/var/www/current"
       docker exec %projectName%_web tar -zxvf /var/www/current/!file! -C /var/www/current
     )
+    endLocal
   )
 
   call :START_PROJECT
