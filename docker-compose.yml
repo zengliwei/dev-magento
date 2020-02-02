@@ -37,6 +37,9 @@ services:
     restart: ${RESTART}
     networks:
       - network
+    volumes:
+      - ./config/nginx:/etc/nginx/
+      - ./config/php:/usr/local/etc/php/
 
 networks:
 
