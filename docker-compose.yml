@@ -13,6 +13,9 @@ services:
       MYSQL_PASSWORD: ${DB_PSWD}
     networks:
       - network
+    volumes:
+      - ./config/mysql:/etc/mysql/
+      - ./db:/docker-entrypoint-initdb.d/
 
   redis:
     image: redis
@@ -34,6 +37,9 @@ services:
     restart: ${RESTART}
     networks:
       - network
+    volumes:
+      - ./config/nginx:/etc/nginx/
+      - ./config/php:/usr/local/etc/php/
 
 networks:
 
