@@ -33,6 +33,7 @@ services:
     networks:
       - network
     volumes:
+      - ./config/mysql:/etc/mysql/
       - ./db:/docker-entrypoint-initdb.d/
 
   rabbitmq:
@@ -60,7 +61,7 @@ services:
     networks:
       - network
     volumes:
-      - ./config/varnish:/etc/varnish
+      - ./config/varnish:/etc/varnish/
 
   web:
     image: magento-2.3-dev-web
@@ -78,8 +79,8 @@ services:
     networks:
       - network
     volumes:
-      - ./config/nginx:/etc/nginx
-      - ./config/php:/usr/local/etc/php
+      - ./config/nginx:/etc/nginx/
+      - ./config/php:/usr/local/etc/php/
 
 networks:
 

@@ -1,5 +1,4 @@
 @echo off
-setLocal enableDelayedExpansion
 
 cd /d %~dp0
 
@@ -69,15 +68,17 @@ goto :EOF
   ::::
   :: Create proxy config file
   ::
-  for /f "tokens=1* delims=:" %%k in ( ./config/proxy.conf ) do (
-    set line=%%l
-    if "%%l" == "" (
+  for /f "tokens=1* delims=:" %%k in ( 'findstr /n .* .\config\proxy.conf' ) do (
+    set "line=%%l"
+    setLocal enableDelayedExpansion
+    if "!line!" == "" (
       echo.>> proxy.conf.tmp
     ) else (
-      set var=!var:magento_project_name=%projectName%!
-      set var=!var:magento_project_domain=%domain%!
+      set line=!line:magento_project_name=%projectName%!
+      set line=!line:magento_project_domain=%domain%!
       echo !line!>> proxy.conf.tmp
     )
+    endlocal
   )
   move proxy.conf.tmp ..\..\config\router\%domain%
 
@@ -85,15 +86,17 @@ goto :EOF
   :: Rebuild Varnish config file
   ::
   for /f "tokens=1* delims=:" %%k in ( 'findstr /n .* .\config\varnish\default.vcl' ) do (
-    set line=%%l
-    if "%%l" == "" (
+    set "line=%%l"
+    setLocal enableDelayedExpansion
+    if "!line!" == "" (
       echo.>> default.vcl.tmp
     ) else (
-      if "%%l" == "    .host = "127.0.0.1";" (
+      if "!line!" == "    .host = "127.0.0.1";" (
         set line=!line:127.0.0.1=%projectName%_varnish!
       )
       echo !line!>> default.vcl.tmp
     )
+    endlocal
   )
   move default.vcl.tmp ./config/varnish/default.vcl
 
@@ -105,13 +108,19 @@ goto :EOF
   ::::
   :: Modify config file of phpMyAdmin
   ::
-  echo.>> ..\..\config\phpmyadmin\config.user.inc.php
-  echo $cfg['Servers'][] = [>> ..\..\config\phpmyadmin\config.user.inc.php
-  echo     'auth_type' =^> 'config',>> ..\..\config\phpmyadmin\config.user.inc.php
-  echo     'host'      =^> '%projectName%_mysql',>> ..\..\config\phpmyadmin\config.user.inc.php
-  echo     'user'      =^> '%dbUser%',>> ..\..\config\phpmyadmin\config.user.inc.php
-  echo     'password'  =^> '%dbPass%'>> ..\..\config\phpmyadmin\config.user.inc.php
-  echo ];>> ..\..\config\phpmyadmin\config.user.inc.php
+  set phpMyAdminSet=0
+  for /f "delims=" %%i in ( 'findstr /c:"%projectName%_mysql" ..\..\config\phpmyadmin\config.user.inc.php' ) do (
+    if %%j == %domain% set phpMyAdminSet=1
+  )
+  if %phpMyAdminSet% == 0 (
+    echo.>> ..\..\config\phpmyadmin\config.user.inc.php
+    echo $cfg['Servers'][] = [>> ..\..\config\phpmyadmin\config.user.inc.php
+    echo     'auth_type' =^> 'config',>> ..\..\config\phpmyadmin\config.user.inc.php
+    echo     'host'      =^> '%projectName%_mysql',>> ..\..\config\phpmyadmin\config.user.inc.php
+    echo     'user'      =^> '%dbUser%',>> ..\..\config\phpmyadmin\config.user.inc.php
+    echo     'password'  =^> '%dbPass%'>> ..\..\config\phpmyadmin\config.user.inc.php
+    echo ];>> ..\..\config\phpmyadmin\config.user.inc.php
+  )
 
   ::::
   :: Import data
@@ -119,33 +128,32 @@ goto :EOF
   for /f %%f in ( 'dir /b src' ) do (
     set file=%%f
     if !file:~-4! == .tar (
-      :: Make sure the source file is completely copied to container before import
-      for /f "delims=" %%i in ( 'dir /s/b .\src\!file!' ) do set fileSize=%%~zi
-      docker cp .\src\!file! %projectName%_web:/var/www/current/
-      :loopCopyTarFile
-      for /f %%s in ( 'docker exec -it %projectName%_web wc -c /var/www/current/!file!' ) do (
-        if not %%s == !fileSize! (
-          ping -n 3 127.0.0.1>nul
-          goto loopCopyTarFile
-        )
-      )
+      call :COPY_FILE_TO_CONTAINER ".\src" !file! %projectName%_web "/var/www/current"
       docker exec %projectName%_web tar -xvf /var/www/current/!file! -C /var/www/current
 
     ) else if !file:~-7! == .tar.gz (
-      :: Make sure the source file is completely copied to container before import
-      for /f "delims=" %%i in ( 'dir /s/b .\src\!file!' ) do set fileSize=%%~zi
-      docker cp .\src\!file! %projectName%_web:/var/www/current/
-      :loopCopyTarGzFile
-      for /f %%s in ( 'docker exec -it %projectName%_web wc -c /var/www/current/!file!' ) do (
-        if not %%s == !fileSize! (
-          ping -n 3 127.0.0.1>nul
-          goto loopCopyTarGzFile
-        )
-      )
+      call :COPY_FILE_TO_CONTAINER ".\src" !file! %projectName%_web "/var/www/current"
       docker exec %projectName%_web tar -zxvf /var/www/current/!file! -C /var/www/current
     )
   )
 
   call :START_PROJECT
 
+goto :EOF
+
+
+::::
+:: Copy file to docker container and make sure it is completely
+::
+:COPY_FILE_TO_CONTAINER
+  set srcDir=%~1&& set fileName=%~2&& set container=%~3&& set distDir=%~4
+  for /f "delims=" %%i in ( 'dir /s/b %srcDir%\%fileName%' ) do set fileSize=%%~zi
+  docker cp %srcDir%\%fileName% %container%:%distDir%
+  :loopCopyFile
+  for /f %%s in ( 'docker exec -it %container% wc -c %distDir%/%fileName%' ) do (
+    if not %%s == %fileSize% (
+      ping -n 3 127.0.0.1>nul
+      goto loopCopyFile
+    )
+  )
 goto :EOF
