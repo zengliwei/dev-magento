@@ -88,7 +88,6 @@ goto :EOF
     )
     move proxy.conf.tmp ..\..\config\router\%domain%
   )
-  pause
 
   ::::
   :: Create containers
