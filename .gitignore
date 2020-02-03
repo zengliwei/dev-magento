@@ -1,1 +1,2 @@
-web/php/magento-*.tar.gz
+/db/*
+/src/*
