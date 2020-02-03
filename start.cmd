@@ -68,19 +68,26 @@ goto :EOF
   ::::
   :: Create proxy config file
   ::
-  for /f "tokens=1* delims=:" %%k in ( 'findstr /n .* .\config\proxy.conf' ) do (
-    set "line=%%l"
-    setLocal enableDelayedExpansion
-    if "!line!" == "" (
-      echo.>> proxy.conf.tmp
-    ) else (
-      set line=!line:magento_project_name=%projectName%!
-      set line=!line:magento_project_domain=%domain%!
-      echo !line!>> proxy.conf.tmp
-    )
-    endLocal
+  set proxySet=0
+  for /f %%i in ( 'dir /b ..\..\config\router' ) do (
+    if %%i == %domain% set proxySet=1
+    if %%i == %domain%.conf set proxySet=1
   )
-  move proxy.conf.tmp ..\..\config\router\%domain%
+  if %proxySet% == 0 (
+    for /f "tokens=1* delims=:" %%k in ( 'findstr /n .* .\config\proxy.conf' ) do (
+      set "line=%%l"
+      setLocal enableDelayedExpansion
+      if "!line!" == "" (
+        echo.>> proxy.conf.tmp
+      ) else (
+        set line=!line:magento_project_name=%projectName%!
+        set line=!line:magento_project_domain=%domain%!
+        echo !line!>> proxy.conf.tmp
+      )
+      endLocal
+    )
+    move proxy.conf.tmp ..\..\config\router\%domain%
+  )
 
   ::::
   :: Rebuild Varnish config file
@@ -130,11 +137,13 @@ goto :EOF
     setLocal enableDelayedExpansion
     if !file:~-4! == .tar (
       call :COPY_FILE_TO_CONTAINER ".\src" !file! %projectName%_web "/var/www/current"
-      docker exec %projectName%_web tar -xvf /var/www/current/!file! -C /var/www/current
+      docker exec %projectName%_web chown www-data:www-data /var/www/current/!file!
+      docker exec -u www-data:www-data %projectName%_web tar -xvf /var/www/current/!file! -C /var/www/current
 
     ) else if !file:~-7! == .tar.gz (
       call :COPY_FILE_TO_CONTAINER ".\src" !file! %projectName%_web "/var/www/current"
-      docker exec %projectName%_web tar -zxvf /var/www/current/!file! -C /var/www/current
+      docker exec %projectName%_web chown www-data:www-data /var/www/current/!file!
+      docker exec -u www-data:www-data %projectName%_web tar -zxvf /var/www/current/!file! -C /var/www/current
     )
     endLocal
   )
