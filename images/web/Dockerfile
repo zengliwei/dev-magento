@@ -16,6 +16,19 @@ RUN apt-get update \
     && docker-php-ext-enable xdebug
 
 #
+# Install Composer
+#
+ENV COMPOSER_ALLOW_SUPERUSER 1
+ENV COMPOSER_HOME /tmp
+ENV COMPOSER_VERSION 1.9.3
+RUN set -eux \
+    && curl --silent --fail --location --retry 3 --output /tmp/installer.php --url https://getcomposer.org/installer \
+    && php /tmp/installer.php --no-ansi --install-dir=/usr/bin --filename=composer --version=${COMPOSER_VERSION} \
+    && composer --ansi --version --no-interaction \
+    && rm -f /tmp/installer.php \
+    && find /tmp -type d -exec chmod -v 1777 {} +
+
+#
 # Install MSMTP for sending email
 #
 RUN apt-get update \
