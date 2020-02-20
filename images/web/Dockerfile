@@ -17,6 +17,19 @@ RUN apt-get update \
 COPY php/php.ini "$PHP_INI_DIR/"
 
 #
+# Install Composer
+#
+ENV COMPOSER_ALLOW_SUPERUSER 1
+ENV COMPOSER_HOME /tmp
+ENV COMPOSER_VERSION 1.9.3
+RUN set -eux \
+    && curl --silent --fail --location --retry 3 --output /tmp/installer.php --url https://getcomposer.org/installer \
+    && php /tmp/installer.php --no-ansi --install-dir=/usr/bin --filename=composer --version=${COMPOSER_VERSION} \
+    && composer --ansi --version --no-interaction \
+    && rm -f /tmp/installer.php \
+    && find /tmp -type d -exec chmod -v 1777 {} +
+
+#
 # Install MSMTP for sending email
 #
 RUN apt-get update \
@@ -53,6 +66,7 @@ COPY linux/.profile /var/www/
 #
 RUN mv /var/www/html /var/www/current \
     && rm -rf /var/www/current/* \
+    && chown -R www-data:www-data /var/www \
     && chmod 0775 /var/www/current
 COPY --chown=www-data:www-data nginx/nginx.conf.sample /var/www/current/
 
