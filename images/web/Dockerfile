@@ -21,7 +21,8 @@ RUN apt-get update \
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_HOME /tmp
 ENV COMPOSER_VERSION 1.9.3
-RUN set -eux \
+RUN apt-get update \
+    && apt-get -y install zip unzip \
     && curl --silent --fail --location --retry 3 --output /tmp/installer.php --url https://getcomposer.org/installer \
     && php /tmp/installer.php --no-ansi --install-dir=/usr/bin --filename=composer --version=${COMPOSER_VERSION} \
     && composer --ansi --version --no-interaction \
