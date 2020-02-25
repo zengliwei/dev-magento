@@ -63,6 +63,12 @@ COPY linux/.bashrc /var/www/
 COPY linux/.profile /var/www/
 
 #
+# Install Git
+#
+RUN apt-get update \
+    && apt-get -y install git
+
+#
 # Rebuild file structure
 #
 RUN mv /var/www/html /var/www/current \
