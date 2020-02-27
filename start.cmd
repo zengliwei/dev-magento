@@ -99,7 +99,7 @@ goto :EOF
       echo.>> default.vcl.tmp
     ) else (
       if "!line!" == "    .host = "127.0.0.1";" (
-        set line=!line:127.0.0.1=%projectName%_varnish!
+        set line=!line:127.0.0.1=%projectName%_web!
       )
       echo !line!>> default.vcl.tmp
     )
