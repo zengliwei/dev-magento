@@ -74,7 +74,7 @@ goto :EOF
     if %%i == %domain%.conf set proxySet=1
   )
   if %proxySet% == 0 (
-    for /f "tokens=1* delims=:" %%k in ( 'findstr /n .* .\config\proxy.conf' ) do (
+    for /f "tokens=1* delims=:" %%k in ( 'findstr /n .* .\config\router\proxy.conf' ) do (
       set "line=%%l"
       setLocal enableDelayedExpansion
       if "!line!" == "" (
