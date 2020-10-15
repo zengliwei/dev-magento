@@ -2,6 +2,25 @@ version: "3"
 
 services:
 
+  elasticsearch:
+    image: elasticsearch:6.8.6
+    container_name: ${COMPOSE_PROJECT_NAME}_elasticsearch
+    restart: ${RESTART}
+    networks:
+      - network
+
+  kibana:
+    image: kibana:6.8.6
+    container_name: ${COMPOSE_PROJECT_NAME}_kibana
+    depends_on:
+      - elasticsearch
+    restart: ${RESTART}
+    environment:
+      SERVER_NAME: ${COMPOSE_PROJECT_NAME}_kibana
+      ELASTICSEARCH_URL: "http://${COMPOSE_PROJECT_NAME}_elasticsearch:9200"
+    networks:
+      - network
+
   mysql:
     image: mysql:5.7
     container_name: ${COMPOSE_PROJECT_NAME}_mysql
