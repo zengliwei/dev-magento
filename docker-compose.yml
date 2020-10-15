@@ -64,7 +64,7 @@ services:
       - ./config/varnish:/etc/varnish/
 
   web:
-    image: magento-2.3-dev-web
+    image: magento-2.4-dev-web
     container_name: ${COMPOSE_PROJECT_NAME}_web
     build:
       context: ./images/web
