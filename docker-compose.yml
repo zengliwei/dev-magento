@@ -1,0 +1,90 @@
+version: "3"
+
+services:
+
+  elasticsearch:
+    image: elasticsearch:6.8.6
+    container_name: ${COMPOSE_PROJECT_NAME}_elasticsearch
+    restart: ${RESTART}
+    networks:
+      - network
+
+  kibana:
+    image: kibana:6.8.6
+    container_name: ${COMPOSE_PROJECT_NAME}_kibana
+    depends_on:
+      - elasticsearch
+    restart: ${RESTART}
+    environment:
+      SERVER_NAME: ${COMPOSE_PROJECT_NAME}_kibana
+      ELASTICSEARCH_URL: "http://${COMPOSE_PROJECT_NAME}_elasticsearch:9200"
+    networks:
+      - network
+
+  mysql:
+    image: mysql:5.7
+    container_name: ${COMPOSE_PROJECT_NAME}_mysql
+    restart: ${RESTART}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PSWD}
+    networks:
+      - network
+    volumes:
+      - ./config/mysql/mysql.cnf:/etc/mysql/mysql.cnf
+      - ./db:/docker-entrypoint-initdb.d/
+
+  rabbitmq:
+    image: magento-dev-rabbitmq
+    container_name: ${COMPOSE_PROJECT_NAME}_rabbitmq
+    build:
+      context: ./images/rabbitmq
+    restart: ${RESTART}
+    networks:
+      - network
+
+  redis:
+    image: redis
+    container_name: ${COMPOSE_PROJECT_NAME}_redis
+    restart: ${RESTART}
+    networks:
+      - network
+
+  varnish:
+    image: varnish
+    container_name: ${COMPOSE_PROJECT_NAME}_varnish
+    depends_on:
+      - web
+    restart: ${RESTART}
+    networks:
+      - network
+    volumes:
+      - ./config/varnish:/etc/varnish/
+
+  web:
+    image: magento-2.3-dev-web
+    container_name: ${COMPOSE_PROJECT_NAME}_web
+    build:
+      context: ./images/web
+      args:
+        SSH_PSWD: ${SSH_PSWD}
+    depends_on:
+      - elasticsearch
+      - mysql
+      - rabbitmq
+      - redis
+    restart: ${RESTART}
+    networks:
+      - network
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./config/nginx/sites-enabled/magento.conf:/etc/nginx/sites-enabled/magento.conf
+      - ./config/php/php.ini:/usr/local/etc/php/php.ini
+
+networks:
+
+  network:
+    external:
+      name: ${NETWORK}
