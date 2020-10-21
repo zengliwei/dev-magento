@@ -6,6 +6,8 @@ services:
     image: elasticsearch:7.9.2
     container_name: ${COMPOSE_PROJECT_NAME}_elasticsearch
     restart: ${RESTART}
+    environment:
+      discovery.type: single-node
     networks:
       - network
 
