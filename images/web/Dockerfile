@@ -1,4 +1,4 @@
-FROM php:7.3-fpm
+FROM php:7.4-fpm
 
 #
 # Install PHP
@@ -10,7 +10,7 @@ RUN apt-get update \
         libxslt-dev \
         libzip-dev \
     && docker-php-ext-install -j$(nproc) bcmath intl opcache pdo_mysql soap xml xsl zip sockets \
-    && docker-php-ext-configure gd --with-freetype-dir --with-jpeg-dir \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd \
     && pecl install xdebug \
     && docker-php-ext-enable xdebug \

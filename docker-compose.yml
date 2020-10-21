@@ -3,14 +3,14 @@ version: "3"
 services:
 
   elasticsearch:
-    image: elasticsearch:6.8.6
+    image: elasticsearch:7.9.2
     container_name: ${COMPOSE_PROJECT_NAME}_elasticsearch
     restart: ${RESTART}
     networks:
       - network
 
   kibana:
-    image: kibana:6.8.6
+    image: kibana:7.9.2
     container_name: ${COMPOSE_PROJECT_NAME}_kibana
     depends_on:
       - elasticsearch
