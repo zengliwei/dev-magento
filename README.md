@@ -8,9 +8,15 @@
 
 ## Images
 
+- **elasticsearch:7.9.2**
+- **kibana:7.9.2**
 - **mysql:5.7**
 - **redis:latest**
-- custom built image from **php:7.2-fpm** with:
-    - php 7.2
+- **varnish:latest**
+- custom built image from **rabbitmq:management** with some default config
+- custom built image from **php:7.4-fpm** with:
+    - php 7.4
+    - composer
+    - git
     - nginx
     - ssh
