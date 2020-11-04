@@ -11,7 +11,6 @@
 - **elasticsearch:7.9.2**
 - **kibana:7.9.2**
 - **mysql:5.7**
-- **redis**
 - **redis:latest**
 - custom built image from **php:7.4-fpm** with:
     - php 7.4
