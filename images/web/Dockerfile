@@ -80,6 +80,7 @@ COPY --chown=www-data:www-data nginx/nginx.conf.sample /var/www/current/
 # Prepare for start
 #
 COPY docker-bootstrap /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-bootstrap
 WORKDIR /var/www
 EXPOSE 22 80
 

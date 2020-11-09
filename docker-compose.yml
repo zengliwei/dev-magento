@@ -55,6 +55,7 @@ services:
     depends_on:
       - mysql
       - redis
+    privileged: true
     restart: ${RESTART}
     networks:
       - network
