@@ -22,7 +22,7 @@ RUN apt-get update \
 #
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_HOME /tmp
-ENV COMPOSER_VERSION 1.9.3
+ENV COMPOSER_VERSION 2.1.6
 RUN apt-get update \
     && apt-get -y install zip unzip \
     && curl --silent --fail --location --retry 3 --output /tmp/installer.php --url https://getcomposer.org/installer \
