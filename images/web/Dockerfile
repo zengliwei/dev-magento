@@ -43,6 +43,8 @@ COPY linux/msmtprc /etc/
 #
 RUN apt-get update \
     && apt-get -y install nginx
+COPY nginx/nginx.conf /etc/nginx/
+COPY nginx/sites-enabled/magento.conf /etc/nginx/sites-enabled/
 
 #
 # Install SSH
