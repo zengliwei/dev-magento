@@ -24,7 +24,7 @@ services:
       - network
 
   mysql:
-    image: mysql:5.7
+    image: mysql:8
     container_name: ${COMPOSE_PROJECT_NAME}_mysql
     restart: ${RESTART}
     environment:
@@ -36,7 +36,6 @@ services:
       - network
     volumes:
       - ./config/mysql/mysql.cnf:/etc/mysql/mysql.cnf
-      - ./db:/docker-entrypoint-initdb.d/
 
   redis:
     image: redis
